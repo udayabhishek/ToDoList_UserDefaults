@@ -11,24 +11,35 @@ class ToDoListTableViewController: UITableViewController {
     let tableCell = "ToDoItemCell"
     var itemsArray = [Item]()
     let userDefault = UserDefaults.standard
-    
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     override func viewDidLoad() {
         super.viewDidLoad()
-       
-        let newItem = Item()
-        newItem.name = "buy eggs"
-        itemsArray.append(newItem)
+        getItems()
+        print(itemsArray)
         
-        let newItem1 = Item()
-        newItem1.name = "make juice"
-        itemsArray.append(newItem1)
-        
-        let newItem2 = Item()
-        newItem2.name = "clean room"
-        itemsArray.append(newItem2)
-        
-//        if let item = userDefault.array(forKey: "ToDoListArray") as? [Item] {
-//            itemsArray = item
+        print(dataFilePath)
+//
+//        let newItem = Item()
+//        newItem.name = "buy eggs"
+//        itemsArray.append(newItem)
+//
+//        let newItem1 = Item()
+//        newItem1.name = "make juice"
+//        itemsArray.append(newItem1)
+//
+//        let newItem2 = Item()
+//        newItem2.name = "clean room"
+//        itemsArray.append(newItem2)
+//        getItems()
+//        let decoder = PropertyListDecoder()
+//        let item = decoder.decode(Item.self, from: nil)
+//        for i in 0..<20 {
+//            let newItem3 = Item()
+//            newItem3.name = "clean room \(i)"
+//            itemsArray.append(newItem3)
+//        }
+//        if let items = userDefault.array(forKey: "ToDoListArray") as? [Item] {
+//            itemsArray = items
 //        }
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -47,7 +58,8 @@ class ToDoListTableViewController: UITableViewController {
             self.itemsArray.append(item)
             
 //            self.userDefault.set(self.itemsArray, forKey: "ToDoListArray")
-            self.tableView.reloadData()
+            
+            saveItems()
         }
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Add new item"
@@ -55,6 +67,30 @@ class ToDoListTableViewController: UITableViewController {
         }
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
+    }
+//    MARK:-
+    //Save Item
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        do {
+            let data = try encoder.encode(itemsArray)
+            try data.write(to: dataFilePath!)
+        } catch  {
+            print("Error while saving data: \(error)")
+        }
+        self.tableView.reloadData()
+    }
+    
+    //Get Item
+    func getItems() {
+        
+        do {
+            let data = try Data(contentsOf: dataFilePath!)
+            let decoder = PropertyListDecoder()
+            itemsArray = try decoder.decode([Item].self, from: data)
+        } catch  {
+            print("Error while getting data: \(error)")
+        }
     }
 }
 
@@ -70,12 +106,11 @@ extension ToDoListTableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: tableCell, for: indexPath)
         cell.textLabel?.text = itemsArray[indexPath.row].name
-        
-        if itemsArray[indexPath.row].isChecked == true {
-            cell.accessoryType = .checkmark
-        } else {
-            cell.accessoryType = .none
-        }
+//        if itemsArray[indexPath.row].isChecked == true {
+//            cell.accessoryType = .checkmark
+//        } else {
+//            cell.accessoryType = .none
+//        }
         //above 4 lines of code can be written in 1 line
         cell.accessoryType = (itemsArray[indexPath.row].isChecked == true) ? .checkmark : .none
         return cell
@@ -90,7 +125,7 @@ extension ToDoListTableViewController {
 //            itemsArray[indexPath.row].isChecked = false
 //        }
         //below line can also be use for toggling, instead of writing above 4 line of code this one line will be sufficient
-        itemsArray[indexPath.row].isChecked = !(itemsArray[indexPath.row].isChecked)
+        itemsArray[indexPath.row].isChecked = !itemsArray[indexPath.row].isChecked
         print(itemsArray[indexPath.row].isChecked)
         //        _ = tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark ? .none : .checkmark
         if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {

@@ -2,7 +2,7 @@
 //  SceneDelegate.swift
 //  ToDoList
 //
-//  Created by Uday Kumar Abhishek . (Service Transformation) on 30/04/21.
+//  Created by Uday Kumar Abhishek on 30/04/21.
 //
 
 import UIKit

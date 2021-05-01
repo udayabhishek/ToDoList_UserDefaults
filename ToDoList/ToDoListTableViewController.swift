@@ -11,41 +11,12 @@ class ToDoListTableViewController: UITableViewController {
     let tableCell = "ToDoItemCell"
     var itemsArray = [Item]()
     let userDefault = UserDefaults.standard
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("TodoList.plist")
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        //get all the items to display in the list
         getItems()
-        print(itemsArray)
-        
-        print(dataFilePath)
-//
-//        let newItem = Item()
-//        newItem.name = "buy eggs"
-//        itemsArray.append(newItem)
-//
-//        let newItem1 = Item()
-//        newItem1.name = "make juice"
-//        itemsArray.append(newItem1)
-//
-//        let newItem2 = Item()
-//        newItem2.name = "clean room"
-//        itemsArray.append(newItem2)
-//        getItems()
-//        let decoder = PropertyListDecoder()
-//        let item = decoder.decode(Item.self, from: nil)
-//        for i in 0..<20 {
-//            let newItem3 = Item()
-//            newItem3.name = "clean room \(i)"
-//            itemsArray.append(newItem3)
-//        }
-//        if let items = userDefault.array(forKey: "ToDoListArray") as? [Item] {
-//            itemsArray = items
-//        }
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
     
     @IBAction func addNewItem(_ sender: UIBarButtonItem) {
@@ -56,9 +27,8 @@ class ToDoListTableViewController: UITableViewController {
             let item = Item()
             item.name = textField.text ?? "NA"
             self.itemsArray.append(item)
-            
 //            self.userDefault.set(self.itemsArray, forKey: "ToDoListArray")
-            
+            //save data into plist file path
             saveItems()
         }
         alert.addTextField { (alertTextField) in
@@ -68,28 +38,27 @@ class ToDoListTableViewController: UITableViewController {
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
     }
-//    MARK:-
-    //Save Item
+    
     func saveItems() {
+        //using NSEncoder
         let encoder = PropertyListEncoder()
         do {
             let data = try encoder.encode(itemsArray)
             try data.write(to: dataFilePath!)
         } catch  {
-            print("Error while saving data: \(error)")
+            print("error while saving data: \(error)")
         }
-        self.tableView.reloadData()
+        tableView.reloadData()
     }
     
-    //Get Item
     func getItems() {
-        
+        //using NSDecoder
         do {
             let data = try Data(contentsOf: dataFilePath!)
             let decoder = PropertyListDecoder()
             itemsArray = try decoder.decode([Item].self, from: data)
         } catch  {
-            print("Error while getting data: \(error)")
+            print("Error in getting data: \(error)")
         }
     }
 }
@@ -102,7 +71,6 @@ extension ToDoListTableViewController {
         return itemsArray.count
     }
 
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: tableCell, for: indexPath)
         cell.textLabel?.text = itemsArray[indexPath.row].name
@@ -136,6 +104,5 @@ extension ToDoListTableViewController {
         
         //by default row will be select and greyed, to make it back to white color after click
         tableView.deselectRow(at: indexPath, animated: true)
-        
     }
 }
